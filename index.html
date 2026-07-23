@@ -561,25 +561,25 @@ function card(text, id, type){
 function pick(el, type){
   if(el.classList.contains('done')) return;
 
-  if(type === 'v'){
-    if(selV) selV.classList.remove('sel');
-    selV = el;
+  if(type === 'r'){
+    if(selR) selR.classList.remove('sel');
+    selR = el;
     el.classList.add('sel');
 
-    if(selR){
-      selR.classList.remove('sel');
-      selR = null;
+    if(selV){
+      selV.classList.remove('sel');
+      selV = null;
     }
     return;
   }
 
-  if(!selV){
-    msg('Choose a verse first, then select the matching passage.', 'neutral');
+  if(!selR){
+    msg('Select a citation first, then choose the matching passage.', 'neutral');
     return;
   }
 
-  if(selR) selR.classList.remove('sel');
-  selR = el;
+  if(selV) selV.classList.remove('sel');
+  selV = el;
   el.classList.add('sel');
 
   if(selV && selR) {
@@ -611,8 +611,7 @@ function check(){
     } else {
       msg('No match. Try again!', 'bad');
       selV.classList.remove('sel');
-      selR.classList.remove('sel');
-      selV = selR = null;
+      selV = null;
       document.getElementById('mistakes').textContent = 'Mistakes: ' + mistakes + ' / 2';
     }
   }
