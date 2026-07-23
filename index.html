@@ -195,6 +195,14 @@
       margin-bottom: 20px;
     }
 
+    .mistakes {
+      font-size: 1em;
+      color: #ff6b6b;
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
     .feed {
       margin-top: 20px;
       padding: 15px;
@@ -244,6 +252,14 @@
     }
 
     #done .box {
+      max-width: 500px;
+    }
+
+    #gameOver {
+      justify-content: center;
+    }
+
+    #gameOver .box {
       max-width: 500px;
     }
 
@@ -322,7 +338,9 @@
 <section id='start' class='screen active'>
   <div class='box'>
     <h1>Blacksmith's Forge</h1>
-    <p class='intro'>You are at the blacksmith's ready to be equipped for your adventure in the Wild West Universe. Match each Bible verse reference with its text to forge your spiritual armor!</p>
+    <p class='intro'>You are at the blacksmith's ready to be equipped for your adventure in the Wild West Universe.</p>
+    <p class='intro'><strong>Match the verse and passage to load your revolver.</strong></p>
+    <p class='intro'><strong style="color: #ff6b6b;">If you make two mistakes you must start again.</strong></p>
     <button type="button" class='btn' onclick="startGame()">Begin</button>
   </div>
 </section>
@@ -334,6 +352,7 @@
   <div class='layout'>
     <div class='panel'>
       <div class='status' id='status'></div>
+      <div class='mistakes' id='mistakes'></div>
       <div class='cols'>
         <div>
           <h2>Verses</h2>
@@ -355,9 +374,18 @@
 
 <section id='done' class='screen'>
   <div class='box'>
-    <h1>Armor Forged!</h1>
-    <p class='intro'>You have successfully memorized these Bible verses and forged your spiritual armor!</p>
+    <h1>Revolver Loaded!</h1>
+    <p class='intro'>You have successfully memorized these Bible verses and loaded your revolver!</p>
     <button type="button" class='btn' onclick="resetGame()">Play Again</button>
+    <button type="button" class='btn backTownBtn' onclick="window.location.href='../../index.html'">Back to Map</button>
+  </div>
+</section>
+
+<section id='gameOver' class='screen'>
+  <div class='box'>
+    <h1>Chamber Empty!</h1>
+    <p class='intro'>You made too many mistakes and your revolver is empty. Better luck next time, partner!</p>
+    <button type="button" class='btn' onclick="resetGame()">Try Again</button>
     <button type="button" class='btn backTownBtn' onclick="window.location.href='../../index.html'">Back to Map</button>
   </div>
 </section>
@@ -396,7 +424,7 @@ const DATA=[
   ["Ephesians 2:8","By grace you have been saved through faith."]
 ];
 
-let deck=[], round=0, matched=0, total=0, selV=null, selR=null;
+let deck=[], round=0, matched=0, total=0, selV=null, selR=null, mistakes=0;
 
 function sh(a){
   a = a.slice();
@@ -472,11 +500,13 @@ function newGame(){
   round = 0;
   matched = 0;
   total = 0;
+  mistakes = 0;
   renderRound();
 }
 
 function resetGame(){
   document.getElementById('done').classList.remove('active');
+  document.getElementById('gameOver').classList.remove('active');
   document.getElementById('start').classList.add('active');
 }
 
@@ -486,6 +516,7 @@ function backToStart(){
   
   document.getElementById('game').classList.remove('active');
   document.getElementById('done').classList.remove('active');
+  document.getElementById('gameOver').classList.remove('active');
   document.getElementById('start').classList.add('active');
 }
 
@@ -494,6 +525,7 @@ function renderRound(){
   matched = 0;
   let set = deck.slice(round*5, round*5+5);
   document.getElementById('status').textContent = 'Set '+(round+1)+' of 6';
+  document.getElementById('mistakes').textContent = 'Mistakes: ' + mistakes + ' / 2';
   document.getElementById('feed').textContent = '';
   
   document.getElementById('verses').innerHTML = '';
@@ -560,10 +592,18 @@ function check(){
       setTimeout(nextRound, 1000);
     }
   } else {
-    msg('No match. Try again!', 'bad');
-    selV.classList.remove('sel');
-    selR.classList.remove('sel');
-    selV = selR = null;
+    mistakes++;
+    
+    if(mistakes >= 2){
+      msg('Chamber Empty! Game Over!', 'bad');
+      setTimeout(gameOver, 1500);
+    } else {
+      msg('No match. Try again!', 'bad');
+      selV.classList.remove('sel');
+      selR.classList.remove('sel');
+      selV = selR = null;
+      document.getElementById('mistakes').textContent = 'Mistakes: ' + mistakes + ' / 2';
+    }
   }
 }
 
@@ -583,6 +623,13 @@ function nextRound(){
     return;
   }
   renderRound();
+}
+
+function gameOver(){
+  const audio = document.getElementById('ambientAudio');
+  if(audio) audio.pause();
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('gameOver').classList.add('active');
 }
 
 function drawCylinder(){
