@@ -560,24 +560,35 @@ function card(text, id, type){
 
 function pick(el, type){
   if(el.classList.contains('done')) return;
-  
+
   if(type === 'v'){
     if(selV) selV.classList.remove('sel');
     selV = el;
-  } else {
-    if(selR) selR.classList.remove('sel');
-    selR = el;
+    el.classList.add('sel');
+
+    if(selR){
+      selR.classList.remove('sel');
+      selR = null;
+    }
+    return;
   }
-  
+
+  if(!selV){
+    msg('Choose a verse first, then select the matching passage.', 'neutral');
+    return;
+  }
+
+  if(selR) selR.classList.remove('sel');
+  selR = el;
   el.classList.add('sel');
-  
+
   if(selV && selR) {
     setTimeout(check, 500);
   }
 }
 
 function check(){
-  let ok = selV.dataset.id === selR.dataset.id;
+  let ok = selV && selR && selV.dataset.id === selR.dataset.id;
   
   if(ok){
     selV.classList.add('done');
