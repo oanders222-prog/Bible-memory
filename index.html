@@ -1,47 +1,312 @@
-<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Blacksmith Bible Matching Game</title><style>
-body{margin:0;background:#120b05;font-family:Georgia,serif;color:#261407}.screen{display:none;min-height:100vh;padding:24px;box-sizing:border-box;background:radial-gradient(circle,#9c6b32,#120b05)}.active{display:flex;align-items:center;justify-content:center}.box,.panel{background:#efd39a;border:5px solid #3a1f0d;border-radius:24px;box-shadow:0 22px 70px #000;padding:28px}.box{max-width:980px;text-align:center}.intro{font-size:24px;line-height:1.45;text-align:left}.btn{font:700 24px Georgia;padding:12px 34px;border-radius:18px;border:3px solid #2b170b;background:#552b14;color:#fff4d5;cursor:pointer;margin:8px}.layout{display:grid;grid-template-columns:1fr 250px;gap:20px;width:min(1250px,96vw);align-items:start}.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:#e2b86b;border:3px solid #5b3013;border-radius:16px;margin:10px 0;padding:14px;font-size:19px;line-height:1.25;cursor:pointer}.sel{outline:5px solid white}.done{background:white;color:#333;border-color:white;cursor:default}.bad{border-color:#9a1111}.status{font-weight:bold;font-size:22px}.feed{height:30px;font-weight:bold;font-size:22px}.good{color:#0a6b21}.badc{color:#9a1111}.ch{fill:#2b170b;stroke:#e5c37a;stroke-width:4}.filled{fill:white}.hub{fill:#3a1f0d;stroke:#e5c37a;stroke-width:4}@media(max-width:800px){.layout,.cols{grid-template-columns:1fr}.intro,.card{font-size:18px}}
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <title>Blacksmith Bible Matching Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #120b05;
+      font-family: Georgia, serif;
+      color: #261407;
+    }
+    
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+      background: radial-gradient(circle, #9c6b32, #120b05);
+    }
+    
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .box {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 10px;
+      max-width: 600px;
+    }
+    
+    h1 {
+      font-size: 3em;
+      margin: 0 0 20px 0;
+      color: #d4a574;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    }
+    
+    .intro {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #e8d4b8;
+    }
+    
+    .btn {
+      padding: 15px 40px;
+      font-size: 1.1em;
+      background: #8b6914;
+      color: #fff;
+      border: 2px solid #d4a574;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    
+    .btn:hover {
+      background: #a8860f;
+      transform: scale(1.05);
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
 
-#introVideoOverlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  background:#000;
-  z-index:20000;
-}
-#introVideoOverlay video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-.backTownBtn{
-  margin-top:14px;
-  background:#2f1a0d !important;
-}
+    #introVideoOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: #000;
+      z-index: 20000;
+    }
+    
+    #introVideoOverlay video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .backTownBtn {
+      margin-top: 14px;
+      background: #2f1a0d !important;
+    }
 
+    #start {
+      background:
+        linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.5)),
+        url('blacksmith_bg.png');
+      background-size: cover;
+      background-position: center;
+    }
 
-#start{
-  background:
-    linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.5)),
-    url('blacksmith_bg.png');
-  background-size:cover;
-  background-position:center;
-}
+    .game-header {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
 
+    .back-btn {
+      padding: 10px 20px;
+      font-size: 0.95em;
+      background: #2f1a0d;
+      color: #fff;
+      border: 2px solid #8b6914;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
 
+    .back-btn:hover {
+      background: #4a2a1a;
+      border-color: #d4a574;
+    }
 
-@supports (padding: max(0px)) {
-  .screen { padding-left:max(24px, env(safe-area-inset-left)); padding-right:max(24px, env(safe-area-inset-right)); }
-}
+    .layout {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 1000px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+    }
 
-/* Cross-browser compatibility additions: preserve existing look */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-button, .card { -webkit-tap-highlight-color: rgba(0,0,0,0); touch-action: manipulation; }
-button { appearance: button; -webkit-appearance: button; }
-@supports (-webkit-touch-callout: none) {
-  .screen { min-height: -webkit-fill-available; }
-}
-</style></head><body>
+    .panel {
+      flex: 1;
+      min-width: 300px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 10px;
+    }
 
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .cols > div {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      padding: 15px;
+      background: #4a3a2a;
+      border: 2px solid #8b6914;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      word-wrap: break-word;
+      word-break: break-word;
+      color: #e8d4b8;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card:hover {
+      background: #6a5a4a;
+      border-color: #d4a574;
+    }
+
+    .card.sel {
+      background: #d4a574;
+      color: #120b05;
+      border-color: #fff;
+    }
+
+    .card.done {
+      background: #2a7a2a;
+      border-color: #4aaa4a;
+      cursor: default;
+      color: #b8e8b8;
+    }
+
+    .status {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #d4a574;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .feed {
+      margin-top: 20px;
+      padding: 15px;
+      background: #3a2a1a;
+      border-radius: 5px;
+      font-size: 1.1em;
+      text-align: center;
+      color: #e8d4b8;
+      border: 1px solid #8b6914;
+    }
+
+    .feed.good {
+      color: #4aaa4a;
+      border-color: #4aaa4a;
+    }
+
+    .feed.bad {
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+    }
+
+    #cyl {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+    }
+
+    .cyl .ch {
+      fill: #4a3a2a;
+      stroke: #8b6914;
+      stroke-width: 2;
+    }
+
+    .cyl .ch.filled {
+      fill: #2a7a2a;
+      stroke: #4aaa4a;
+    }
+
+    .cyl .hub {
+      fill: #8b6914;
+      stroke: #d4a574;
+      stroke-width: 1;
+    }
+
+    #done {
+      justify-content: center;
+    }
+
+    #done .box {
+      max-width: 500px;
+    }
+
+    h2 {
+      color: #d4a574;
+      margin-top: 0;
+      font-size: 1.3em;
+    }
+
+    @supports (padding: max(0px)) {
+      .screen {
+        padding-left: max(24px, env(safe-area-inset-left));
+        padding-right: max(24px, env(safe-area-inset-right));
+      }
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    button, .card {
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      touch-action: manipulation;
+    }
+
+    button {
+      appearance: button;
+      -webkit-appearance: button;
+    }
+
+    @supports (-webkit-touch-callout: none) {
+      .screen {
+        min-height: -webkit-fill-available;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cols {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      .box {
+        padding: 20px;
+      }
+
+      .game-header {
+        top: 10px;
+        right: 10px;
+      }
+
+      .back-btn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
 
 <audio id="ambientAudio" preload="auto" loop playsinline>
   <source src="ambient.wav" type="audio/wav">
@@ -54,46 +319,94 @@ button { appearance: button; -webkit-appearance: button; }
   </video>
 </div>
 
-<section id='start' class='screen active'><div class='box'><h1>Blacksmith's Forge</h1><p class='intro'>You are at the blacksmith's ready to be equipped for your adventure in the Wild West University. Remember, the weapons we fight with are not the weapons of the world. On the contrary, they have divine power to demolish strongholds. We demolish arguments and every pretension that sets itself up against the knowledge of God, and we take captive every thought to make it obedient to Christ (1 Corinthians 10:4-5). You must be equipped with the Word of God so that you can draw it from your memory as fast as a rattlesnake.</p><button type="button" class='btn' onclick='startGame()'>Start</button>
-<button type="button" class='btn backTownBtn' onclick="window.location.href='../../index.html'">Back to Map</button>
-</div></section><section id='game' class='screen'><div class='layout'><div class='panel'><div class='status' id='status'></div><div class='cols'><div><h2>Verses</h2><div id='verses'></div></div><div><h2>References</h2><div id='refs'></div></div></div><div class='feed' id='feed'></div></div><div class='panel'><h2>Revolver</h2><div id='cyl'></div><p id='progress'></p></div></div></section><section id='done' class='screen'><div class='box'><h1>Equipped</h1><p>You have matched the verses and references. The Word is ready to be drawn from memory.</p><button type="button" class='btn' onclick='resetGame()'>Start Over</button><button type="button" class='btn backTownBtn' onclick='backToTown()'>Back to Town</button>
-<button type="button" class='btn backTownBtn' onclick="window.location.href='../../index.html'">Back to Map</button>
-</div></section>
+<section id='start' class='screen active'>
+  <div class='box'>
+    <h1>Blacksmith's Forge</h1>
+    <p class='intro'>You are at the blacksmith's ready to be equipped for your adventure in the Wild West Universe. Match each Bible verse reference with its text to forge your spiritual armor!</p>
+    <button type="button" class='btn' onclick="startGame()">Begin</button>
+  </div>
+</section>
+
+<section id='game' class='screen'>
+  <div class='game-header'>
+    <button type="button" class='back-btn' onclick="backToStart()">← Back</button>
+  </div>
+  <div class='layout'>
+    <div class='panel'>
+      <div class='status' id='status'></div>
+      <div class='cols'>
+        <div>
+          <h2>Verses</h2>
+          <div id='verses'></div>
+        </div>
+        <div>
+          <h2>References</h2>
+          <div id='refs'></div>
+        </div>
+      </div>
+      <div class='feed' id='feed'></div>
+    </div>
+    <div class='panel'>
+      <h2>Progress</h2>
+      <div id='cyl'></div>
+    </div>
+  </div>
+</section>
+
+<section id='done' class='screen'>
+  <div class='box'>
+    <h1>Armor Forged!</h1>
+    <p class='intro'>You have successfully memorized these Bible verses and forged your spiritual armor!</p>
+    <button type="button" class='btn' onclick="resetGame()">Play Again</button>
+    <button type="button" class='btn backTownBtn' onclick="window.location.href='../../index.html'">Back to Map</button>
+  </div>
+</section>
+
 <script>
 const DATA=[
-["Genesis 1:1","In the beginning God created the heavens and the earth."],
-["Psalm 14:1","The fool has said in his heart, There is no God."],
-["Psalm 19:1","The heavens declare the glory of God; and the firmament shows His handiwork."],
-["Psalm 119:105","Your word is a lamp to my feet and a light to my path."],
-["Proverbs 1:7","The fear of the LORD is the beginning of knowledge."],
-["Proverbs 9:10","The fear of the LORD is the beginning of wisdom."],
-["Isaiah 5:20","Woe to those who call evil good, and good evil."],
-["Matthew 6:33","Seek first the kingdom of God and His righteousness."],
-["John 1:1","In the beginning was the Word, and the Word was with God, and the Word was God."],
-["John 8:32","And you shall know the truth, and the truth shall make you free."],
-["John 14:6","I am the way, the truth, and the life."],
-["Romans 1:20","His invisible attributes are clearly seen, being understood by the things that are made."],
-["Romans 12:2","Do not be conformed to this world, but be transformed by the renewing of your mind."],
-["1 Corinthians 10:31","Whatever you do, do all to the glory of God."],
-["2 Corinthians 10:5","Take every thought captive to the obedience of Christ."],
-["Ephesians 6:17","Take the helmet of salvation, and the sword of the Spirit, which is the word of God."],
-["Colossians 2:8","Beware lest anyone cheat you through philosophy and empty deceit."],
-["2 Timothy 3:16","All Scripture is given by inspiration of God."],
-["Hebrews 4:12","The word of God is living and powerful, and sharper than any two-edged sword."],
-["James 1:5","If any of you lacks wisdom, let him ask of God."],
-["1 Peter 3:15","Always be ready to give a defense to everyone who asks you a reason for the hope that is in you."],
-["1 John 4:1","Do not believe every spirit, but test the spirits."],
-["Deuteronomy 6:5","You shall love the LORD your God with all your heart."],
-["Joshua 1:8","This Book of the Law shall not depart from your mouth."],
-["Micah 6:8","What does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?"],
-["Matthew 22:37","You shall love the LORD your God with all your heart."],
-["Acts 17:24","God, who made the world and everything in it, is Lord of heaven and earth."],
-["Romans 3:23","All have sinned and fall short of the glory of God."],
-["Romans 6:23","The wages of sin is death, but the gift of God is eternal life."],
-["Ephesians 2:8","By grace you have been saved through faith."]
+  ["Genesis 1:1","In the beginning God created the heavens and the earth."],
+  ["Psalm 14:1","The fool has said in his heart, There is no God."],
+  ["Psalm 19:1","The heavens declare the glory of God; and the firmament shows His handiwork."],
+  ["Psalm 119:105","Your word is a lamp to my feet and a light to my path."],
+  ["Proverbs 1:7","The fear of the LORD is the beginning of knowledge."],
+  ["Proverbs 9:10","The fear of the LORD is the beginning of wisdom."],
+  ["Isaiah 5:20","Woe to those who call evil good, and good evil."],
+  ["Matthew 6:33","Seek first the kingdom of God and His righteousness."],
+  ["John 1:1","In the beginning was the Word, and the Word was with God, and the Word was God."],
+  ["John 8:32","And you shall know the truth, and the truth shall make you free."],
+  ["John 14:6","I am the way, the truth, and the life."],
+  ["Romans 1:20","His invisible attributes are clearly seen, being understood by the things that are made."],
+  ["Romans 12:2","Do not be conformed to this world, but be transformed by the renewing of your mind."],
+  ["1 Corinthians 10:31","Whatever you do, do all to the glory of God."],
+  ["2 Corinthians 10:5","Take every thought captive to the obedience of Christ."],
+  ["Ephesians 6:17","Take the helmet of salvation, and the sword of the Spirit, which is the word of God."],
+  ["Colossians 2:8","Beware lest anyone cheat you through philosophy and empty deceit."],
+  ["2 Timothy 3:16","All Scripture is given by inspiration of God."],
+  ["Hebrews 4:12","The word of God is living and powerful, and sharper than any two-edged sword."],
+  ["James 1:5","If any of you lacks wisdom, let him ask of God."],
+  ["1 Peter 3:15","Always be ready to give a defense to everyone who asks you a reason for the hope that is in you."],
+  ["1 John 4:1","Do not believe every spirit, but test the spirits."],
+  ["Deuteronomy 6:5","You shall love the LORD your God with all your heart."],
+  ["Joshua 1:8","This Book of the Law shall not depart from your mouth."],
+  ["Micah 6:8","What does the LORD require of you but to do justly, to love mercy, and to walk humbly with your God?"],
+  ["Matthew 22:37","You shall love the LORD your God with all your heart."],
+  ["Acts 17:24","God, who made the world and everything in it, is Lord of heaven and earth."],
+  ["Romans 3:23","All have sinned and fall short of the glory of God."],
+  ["Romans 6:23","The wages of sin is death, but the gift of God is eternal life."],
+  ["Ephesians 2:8","By grace you have been saved through faith."]
 ];
-let deck=[],round=0,matched=0,total=0,selV=null,selR=null;
-function sh(a){a=a.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+let deck=[], round=0, matched=0, total=0, selV=null, selR=null;
+
+function sh(a){
+  a = a.slice();
+  for(let i=a.length-1; i>0; i--){
+    let j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function startAmbient(){
   const audio = document.getElementById('ambientAudio');
   if(!audio) return;
@@ -101,13 +414,9 @@ function startAmbient(){
   audio.volume = 0.35;
   audio.loop = true;
 
-  /* Calling play() directly from the Start button click keeps Safari/iOS,
-     Chrome, Firefox, and Edge within their user-gesture autoplay rules. */
   const playPromise = audio.play();
   if(playPromise && typeof playPromise.catch === 'function'){
     playPromise.catch(function(){
-      /* Some browsers may still block audio until the next touch/click.
-         This fallback preserves the game and starts audio at the first allowed interaction. */
       const unlock = function(){
         audio.play().catch(function(){});
         document.removeEventListener('pointerdown', unlock);
@@ -157,14 +466,125 @@ function startGame(){
     });
   }
 }
-function newGame(){deck=sh(DATA).map((x,i)=>({ref:x[0],verse:x[1],id:i,done:false}));round=0;matched=0;total=0;renderRound()}
-function resetGame(){document.getElementById('done').classList.remove('active');document.getElementById('start').classList.add('active')}
-function renderRound(){selV=selR=null;matched=0;let set=deck.slice(round*5,round*5+5);document.getElementById('status').textContent='Set '+(round+1)+' of 6';document.getElementById('feed').textContent='';let v=document.getElementById('verses'),r=document.getElementById('refs');v.innerHTML='';r.innerHTML='';sh(set).forEach(item=>v.appendChild(card(item.verse,item.id,'v')));sh(set).forEach(item=>r.appendChild(card(item.ref,item.id,'r')));drawCylinder();document.getElementById('progress').textContent='Completed sets: '+round+' / 6'}
-function card(text,id,type){let d=document.createElement('div');d.className='card';d.textContent=text;d.dataset.id=id;d.setAttribute('role','button');d.setAttribute('tabindex','0');d.onclick=()=>pick(d,type);d.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(d,type)}};return d}
-function pick(el,type){if(el.classList.contains('done'))return;if(type==='v'){if(selV)selV.classList.remove('sel');selV=el}else{if(selR)selR.classList.remove('sel');selR=el}el.classList.add('sel');if(selV&&selR)check()}
-function check(){let ok=selV.dataset.id===selR.dataset.id;if(ok){selV.classList.add('done');selR.classList.add('done');selV.classList.remove('sel');selR.classList.remove('sel');matched++;total++;msg('Matched. Draw the Word quickly.','good');if(matched===5)setTimeout(nextRound,700)}else{selV.classList.add('bad');selR.classList.add('bad');msg('Try again. Keep forging the memory.','badc');setTimeout(()=>{selV.classList.remove('bad','sel');selR.classList.remove('bad','sel');selV=selR=null},450);return}selV=selR=null}
-function msg(t,c){let f=document.getElementById('feed');f.className='feed '+c;f.textContent=t}
-function nextRound(){round++;if(round>=6){document.getElementById('game').classList.remove('active');document.getElementById('done').classList.add('active');return}renderRound()}
+
+function newGame(){
+  deck = sh(DATA).map((x,i)=>({ref:x[0], verse:x[1], id:i, done:false}));
+  round = 0;
+  matched = 0;
+  total = 0;
+  renderRound();
+}
+
+function resetGame(){
+  document.getElementById('done').classList.remove('active');
+  document.getElementById('start').classList.add('active');
+}
+
+function backToStart(){
+  const audio = document.getElementById('ambientAudio');
+  if(audio) audio.pause();
+  
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('done').classList.remove('active');
+  document.getElementById('start').classList.add('active');
+}
+
+function renderRound(){
+  selV = selR = null;
+  matched = 0;
+  let set = deck.slice(round*5, round*5+5);
+  document.getElementById('status').textContent = 'Set '+(round+1)+' of 6';
+  document.getElementById('feed').textContent = '';
+  
+  document.getElementById('verses').innerHTML = '';
+  document.getElementById('refs').innerHTML = '';
+  
+  let refs = set.map(x => x.ref);
+  refs = sh(refs);
+  
+  set.forEach(x => {
+    document.getElementById('verses').appendChild(card(x.verse, x.id, 'v'));
+  });
+  
+  refs.forEach((r, i) => {
+    let obj = set.find(x => x.ref === r);
+    document.getElementById('refs').appendChild(card(r, obj.id, 'r'));
+  });
+  
+  drawCylinder();
+}
+
+function card(text, id, type){
+  let d = document.createElement('div');
+  d.className = 'card';
+  d.textContent = text;
+  d.dataset.id = id;
+  d.setAttribute('role','button');
+  d.setAttribute('tabindex','0');
+  d.onclick = () => pick(d, type);
+  d.onkeydown = (e) => { if(e.key === ' ' || e.key === 'Enter') pick(d, type); };
+  return d;
+}
+
+function pick(el, type){
+  if(el.classList.contains('done')) return;
+  
+  if(type === 'v'){
+    if(selV) selV.classList.remove('sel');
+    selV = el;
+  } else {
+    if(selR) selR.classList.remove('sel');
+    selR = el;
+  }
+  
+  el.classList.add('sel');
+  
+  if(selV && selR) {
+    setTimeout(check, 500);
+  }
+}
+
+function check(){
+  let ok = selV.dataset.id === selR.dataset.id;
+  
+  if(ok){
+    selV.classList.add('done');
+    selR.classList.add('done');
+    selV.classList.remove('sel');
+    selR.classList.remove('sel');
+    matched++;
+    total++;
+    msg('Match!', 'good');
+    
+    if(matched === 5){
+      setTimeout(nextRound, 1000);
+    }
+  } else {
+    msg('No match. Try again!', 'bad');
+    selV.classList.remove('sel');
+    selR.classList.remove('sel');
+    selV = selR = null;
+  }
+}
+
+function msg(t, c){
+  let f = document.getElementById('feed');
+  f.className = 'feed '+c;
+  f.textContent = t;
+}
+
+function nextRound(){
+  round++;
+  if(round >= 6){
+    const audio = document.getElementById('ambientAudio');
+    if(audio) audio.pause();
+    document.getElementById('game').classList.remove('active');
+    document.getElementById('done').classList.add('active');
+    return;
+  }
+  renderRound();
+}
+
 function drawCylinder(){
   let filled = round;
   let pts = [[100,38],[154,69],[154,131],[100,162],[46,131],[46,69]];
@@ -172,7 +592,7 @@ function drawCylinder(){
   let s = '<svg viewBox="0 0 200 200">';
   s += '<g class="cyl">';
 
-  for(let i=0;i<6;i++){
+  for(let i=0; i<6; i++){
     s += '<circle class="ch '+(i<filled?'filled':'')+'" cx="'+pts[i][0]+'" cy="'+pts[i][1]+'" r="22"/>';
   }
 
@@ -182,12 +602,6 @@ function drawCylinder(){
   document.getElementById('cyl').innerHTML = s;
 }
 
-function backToTown(){
-  window.location.href='../../index.html';
-}
-
-
-/* Browser compatibility layer: does not change gameplay or visual style */
 (function(){
   function ready(fn){
     if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
@@ -199,4 +613,7 @@ function backToTown(){
     });
   });
 })();
-</script></body></html>
+</script>
+
+</body>
+</html>
